@@ -54,7 +54,11 @@ PKU Art 第一版发布于 2021 年 11 月，相对简陋；2022 年暑假更新
 
 ![7](https://cdn.arthals.ink/bed/2025/11/7-04e26f6488aa1ea63f5929ccc5654e93.jpg)
 
-2026 年 09 月后，新版录播采用 AES-128 加密的 HLS 分片，后端不再提供可直接下载的单个 MP4。PKU Art 会按网页播放器使用的登录态逐段下载、解密，并以流式方式写入本地，最终保存为 `.ts` 文件；下载过程中请勿关闭录播页面。TS 文件可直接使用 VLC、IINA 等播放器播放，也可以无损封装为 MP4：
+2026 年 09 月后，新版录播采用 AES-128 加密的 HLS 分片，后端不再提供可直接下载的单个 MP4。本修改版会按网页播放器使用的登录态逐段下载、解密，在浏览器内使用 mux.js 无损封装为 `.mp4`，并以流式方式写入本地。无需安装 FFmpeg；下载过程中请勿关闭录播页面。支持 H.264 视频和 AAC 音频，保留原始画质和音质。
+
+安装本修改版：在 Tampermonkey 中打开已有的 PKU-Art 脚本，用仓库内 `release/PKU-Art.user.js` 的全部内容替换并保存，再刷新录播页面。此版本关闭上游自动更新，避免被原版覆盖。Safari 的 UserScripts 用户也可用此文件替换原脚本。
+
+已经下载的 TS 文件仍可使用 FFmpeg 无损封装为 MP4：
 
 ```bash
 ffmpeg -i input.ts -c copy output.mp4
@@ -176,6 +180,8 @@ Safari 需安装浏览器插件 [UserScripts](https://apps.apple.com/cn/app/user
     ```bash
     bun run build
     ```
+
+构建产物位于 `dist/pku-art.user.js`。本地构建不需要 `.env` 或维护者的 CDN 上传脚本。需要发布到自己的更新源时，可用环境变量 `VERSION`、`UPDATE_URL` 和 `DOWNLOAD_URL` 指定版本及更新地址。运行 `bun run test` 可验证 MP4 封装、加密分片下载和取消清理；音视频集成测试需要系统 PATH 中有 FFmpeg 和 FFprobe。
 
 6. 而后，你就可以发起 Pull Request，我将在审核代码后进行合并，随后更新 CDN。
 

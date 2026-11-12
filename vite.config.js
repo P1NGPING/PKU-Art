@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite';
 import monkey, { util } from 'vite-plugin-monkey';
 import mkcert from 'vite-plugin-mkcert';
-import fs from 'fs';
 import dotenv from 'dotenv';
 import AutoImport from 'unplugin-auto-import/vite';
 
@@ -11,8 +10,9 @@ const date = new Date().toLocaleDateString('zh-CN', {
     day: '2-digit',
 });
 
-// 读取并解析 version.env 文件
-const envConfig = dotenv.parse(fs.readFileSync('.env'));
+// Public checkouts can build without the maintainer's private .env / CDN uploader.
+dotenv.config();
+const version = process.env.VERSION || '2.6.27.1';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -33,9 +33,10 @@ export default defineConfig({
                 // match: ['*://*.pku.edu.cn/*', 'http://localhost:8000/*'],
                 'run-at': 'document-start',
                 'inject-into': 'page',
-                version: envConfig.VERSION,
-                updateURL: 'https://cdn.arthals.ink/release/PKU-Art.user.js',
-                downloadURL: 'https://cdn.arthals.ink/release/PKU-Art.user.js',
+                version,
+                // Keep this custom build from being replaced by the upstream TS version.
+                updateURL: process.env.UPDATE_URL || 'none',
+                downloadURL: process.env.DOWNLOAD_URL || 'none',
                 supportURL: 'https://github.com/zhuozhiyongde/PKU-Art/issues',
                 connect: ['pku.edu.cn'],
                 license: 'GPL-3.0 license',
